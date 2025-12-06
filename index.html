@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Linear Algebra Solver</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="container">
+    <h1>Linear Algebra Calculator</h1>
+
+    <div class="controls">
+  <label>Number of Equations:
+    <input type="number" id="rows" min="1" value="3">
+  </label>
+
+  <label>Number of Variables:
+    <input type="number" id="cols" min="1" value="3">
+  </label>
+
+  <label>Mode:
+    <select id="mode">
+      <option value="gaussian">Gaussian Elimination</option>
+      <option value="gaussJordan">Gauss-Jordan</option>
+      <option value="inverse">Matrix Inverse</option>
+    </select>
+  </label>
+
+  <label>
+    <input type="checkbox" id="augmented" checked>
+    Augmented System (b column)
+  </label>
+
+  <button id="generate">Generate Matrix</button>
+  <button id="sample">Load Sample</button>
+  <button id="solve">Solve</button>
+  <button id="clear">Clear</button>
+</div>
+
+    <div id="matrix-container"></div>
+
+    <div class="output">
+      <h3>Steps</h3>
+      <div id="steps"></div>
+
+      <h3>Result</h3>
+      <div id="result"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
