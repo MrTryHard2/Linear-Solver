@@ -1,11 +1,3 @@
-document.getElementById("clear").onclick = clearAll;
-
-function clearAll() {
-  matrixContainer.innerHTML = "";
-  stepsDiv.innerHTML = "";
-  resultDiv.innerHTML = "";
-}
-
 const matrixContainer = document.getElementById("matrix-container");
 const stepsDiv = document.getElementById("steps");
 const resultDiv = document.getElementById("result");
@@ -13,6 +5,13 @@ const resultDiv = document.getElementById("result");
 document.getElementById("generate").onclick = generateMatrix;
 document.getElementById("solve").onclick = solve;
 document.getElementById("sample").onclick = loadSample;
+document.getElementById("clear").onclick = clearAll;
+
+function clearAll() {
+  matrixContainer.innerHTML = "";
+  stepsDiv.innerHTML = "";
+  resultDiv.innerHTML = "";
+}
 
 function generateMatrix() {
   matrixContainer.innerHTML = "";
@@ -30,7 +29,6 @@ function generateMatrix() {
   }
 
   const totalCols = augmented ? cols + 1 : cols;
-
   const table = document.createElement("table");
 
   for (let i = 0; i < rows; i++) {
@@ -51,13 +49,14 @@ function generateMatrix() {
   matrixContainer.appendChild(table);
 }
 
-
 function readMatrix() {
   const inputs = document.querySelectorAll("input[data-row]");
   const rows = Number(document.getElementById("rows").value);
   const cols = Number(document.getElementById("cols").value);
 
-  const matrix = Array.from({ length: rows }, () => Array(cols + 1).fill(0));
+  const matrix = Array.from({ length: rows }, () =>
+    Array(cols + 1).fill(0)
+  );
 
   inputs.forEach(input => {
     const r = input.dataset.row;
@@ -68,10 +67,9 @@ function readMatrix() {
   return matrix;
 }
 
-
 let stepCounter = 1;
 
-function logStep(operationText, matrix) {
+function logStep(text, matrix) {
   const box = document.createElement("div");
   box.className = "step-box";
 
@@ -81,7 +79,7 @@ function logStep(operationText, matrix) {
 
   const operation = document.createElement("div");
   operation.className = "row-operation";
-  operation.innerText = operationText;
+  operation.innerText = text;
 
   const label = document.createElement("div");
   label.innerHTML = "<b>Matrix after this step</b>";
@@ -89,7 +87,6 @@ function logStep(operationText, matrix) {
   const grid = document.createElement("div");
   grid.className = "matrix-step";
 
-  // ✅ هنا السحر: عدد الأعمدة = طول الصف
   const cols = matrix[0].length;
   grid.style.gridTemplateColumns = `repeat(${cols}, 60px)`;
 
@@ -110,13 +107,8 @@ function logStep(operationText, matrix) {
   stepsDiv.appendChild(box);
 }
 
-
-
-
 function solve() {
   stepCounter = 1;
-stepsDiv.innerHTML = "";
-
   stepsDiv.innerHTML = "";
   resultDiv.innerHTML = "";
 
@@ -143,11 +135,10 @@ function gaussianElimination(A) {
       for (let j = i; j < m; j++) {
         A[k][j] -= factor * A[i][j];
       }
-      logStep(`R${k+1} = R${k+1} - (${factor.toFixed(3)})R${i+1}`, A);
+      logStep(`R${k + 1} = R${k + 1} - (${smartNumber(factor)})R${i + 1}`, A);
     }
   }
 
-  // ✅ No Solution detection
   for (let i = 0; i < n; i++) {
     let allZero = true;
     for (let j = 0; j < vars; j++) {
@@ -163,7 +154,6 @@ function gaussianElimination(A) {
     }
   }
 
-  // ✅ Infinite Solutions detection
   let rank = 0;
   for (let i = 0; i < n; i++) {
     let nonZero = false;
@@ -181,7 +171,6 @@ function gaussianElimination(A) {
     return;
   }
 
-  // ✅ Back Substitution (Unique Solution)
   const x = Array(vars).fill(0);
 
   for (let i = vars - 1; i >= 0; i--) {
@@ -192,13 +181,11 @@ function gaussianElimination(A) {
     x[i] = sum / A[i][i];
   }
 
- resultDiv.innerHTML =
-  "<b>Status:</b> Unique Solution<br><br>" +
-  "<b>Solution:</b><br>" +
-  x.map(v => smartNumber(v)).join("<br>");
+  resultDiv.innerHTML =
+    "<b>Status:</b> Unique Solution<br><br>" +
+    "<b>Solution:</b><br>" +
+    renderMatrix(x.map(v => [v]));
 }
-
-
 
 function gaussJordan(A) {
   const n = A.length;
@@ -210,7 +197,7 @@ function gaussJordan(A) {
     let pivot = A[i][i];
     for (let j = 0; j < m; j++) A[i][j] /= pivot;
 
-    logStep(`R${i+1} / ${pivot.toFixed(3)}`, A);
+    logStep(`R${i + 1} / ${smartNumber(pivot)}`, A);
 
     for (let k = 0; k < n; k++) {
       if (k !== i) {
@@ -218,13 +205,13 @@ function gaussJordan(A) {
         for (let j = 0; j < m; j++) {
           A[k][j] -= factor * A[i][j];
         }
-        logStep(`R${k+1} = R${k+1} - (${factor.toFixed(3)})R${i+1}`, A);
+        logStep(`R${k + 1} = R${k + 1} - (${smartNumber(factor)})R${i + 1}`, A);
       }
     }
   }
 
-  const sol = A.map(row => row[m - 1]);
-  resultDiv.innerHTML = "<b>Solution:</b><br>" + sol.map(v => v.toFixed(5)).join("<br>");
+  const sol = A.map(row => smartNumber(row[m - 1]));
+  resultDiv.innerHTML = "<b>Solution:</b><br>" + sol.join("<br>");
 }
 
 function inverseMatrix(A) {
@@ -243,7 +230,7 @@ function inverseMatrix(A) {
     let pivot = A[i][i];
     for (let j = 0; j < m; j++) A[i][j] /= pivot;
 
-    logStep(`R${i+1} / ${pivot.toFixed(3)}`, A);
+    logStep(`R${i + 1} / ${smartNumber(pivot)}`, A);
 
     for (let k = 0; k < n; k++) {
       if (k !== i) {
@@ -251,14 +238,13 @@ function inverseMatrix(A) {
         for (let j = 0; j < m; j++) {
           A[k][j] -= factor * A[i][j];
         }
-        logStep(`R${k+1} = R${k+1} - (${factor.toFixed(3)})R${i+1}`, A);
+        logStep(`R${k + 1} = R${k + 1} - (${smartNumber(factor)})R${i + 1}`, A);
       }
     }
   }
 
   const inv = A.map(row => row.slice(n));
-  resultDiv.innerHTML = "<b>Inverse Matrix:</b><br>" +
-    inv.map(r => r.map(v => v.toFixed(5)).join(" ")).join("<br>");
+  resultDiv.innerHTML = "<b>Inverse Matrix:</b><br><br>" + renderMatrix(inv);
 }
 
 function loadSample() {
@@ -270,24 +256,33 @@ function loadSample() {
     [-2, 1, 2, -3]
   ];
 
-  const rows = Number(document.getElementById("rows").value);
   const cols = Number(document.getElementById("cols").value);
 
   document.querySelectorAll("input[data-row]").forEach(input => {
     const r = Number(input.dataset.row);
     const c = Number(input.dataset.col);
 
-    // Fill only inside 3x3 + b column
-    if (r < 3 && c < cols + 1 && c < 4) {
-      input.value = sample[r][c] ?? 0;
-    } else {
-      input.value = 0;
-    }
+    if (r < 3 && c < cols + 1 && c < 4) input.value = sample[r][c];
+    else input.value = 0;
   });
 }
+
 function smartNumber(num) {
-  if (Math.abs(num - Math.round(num)) < 1e-9) {
-    return Math.round(num);  // Integer
-  }
-  return Number(num.toFixed(4)); // Decimal only if needed
+  if (Math.abs(num - Math.round(num)) < 1e-9) return Math.round(num);
+  return Number(num.toFixed(4));
+}
+
+function renderMatrix(matrix) {
+  let html = `<div class="matrix-step" style="grid-template-columns: repeat(${matrix[0].length}, auto);">`;
+
+  matrix.forEach(row => {
+    row.forEach(value => {
+      let v = Math.abs(value) < 1e-10 ? 0 : value;
+      v = Number.isInteger(v) ? v : parseFloat(v.toFixed(5));
+      html += `<input type="text" value="${v}" disabled>`;
+    });
+  });
+
+  html += `</div>`;
+  return html;
 }
